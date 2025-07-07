@@ -208,14 +208,15 @@ jobs:
           tags: ${{ env.IMAGE }}:${{ steps.generate_tag.outputs.sha }} , ${{ env.IMAGE }}:latest
 
       - name: Copy manifests (DEV)
-        uses: appleboy/scp-action@v0.1.4
+        uses: betanzos/scp-upload@v1
         with:
-          context: ./parking-lots-management/eureka-discovery-service
           host: ${{ secrets.SSH_HOST }}
           username: helder-batista
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "k8s/*.yaml"
-          target: "/home/helder-batista/deploy/dev"
+          source: "./parking-lots-management/eureka-discovery-servicek8s/*.yaml"
+          port: "22"
+          remote_dir: "~/deploy/dev"
+          recursive: "false"
 
       - name: Apply on DEV Cluster
         uses: appleboy/ssh-action@v1.0.0
