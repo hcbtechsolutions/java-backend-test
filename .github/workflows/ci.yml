@@ -207,6 +207,27 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.generate_tag.outputs.sha }} , ${{ env.IMAGE }}:latest
 
+      - name: Copy manifests (DEV)
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          context: ./parking-lots-management/eureka-discovery-service
+          host: ${{ secrets.SSH_HOST }}
+          username: helder-batista
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "k8s/*.yaml"
+          target: "/home/helder-batista/deploy/dev"
+
+      - name: Apply on DEV Cluster
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: helder-batista
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.KUBECONFIG_DEV_CONTENT }}" > /home/helder-batista/kubeconfig-dev
+            export KUBECONFIG=/home/helder-batista/kubeconfig-dev
+            kubectl apply -f /home/helder-batista/deploy/dev
+
   api-gateway-service:
     name: API Gateway Service
     runs-on: ubuntu-latest
