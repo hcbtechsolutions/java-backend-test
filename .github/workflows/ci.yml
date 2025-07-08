@@ -232,8 +232,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
           source: "parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml"
-          target: "/home/${{ secrets.USERNAME }}/deploy/dev"
+          target: /home/${{ secrets.USERNAME }}/deploy/dev
 
       - name: Deploy on DEV Cluster
         uses: appleboy/ssh-action@v1.0.0
