@@ -207,34 +207,35 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.generate_tag.outputs.sha }} , ${{ env.IMAGE }}:latest
 
-      - name: Copy manifests (DEV)
+      - name: Install and startup tailscale
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --ssh
+          tailscale status
 
-      - name: 🧪 Tailscale status verify
-        run: tailscale status
-
-      - name: 🔐 Remote ssh connection
+      - name: 🔐 Setup SSH Key
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }} 'echo ✅ Conectado com sucesso! && hostname && uptime'
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # (opcional) - Enviar arquivos para sua máquina
       - name: 📦 Copy files to server by SCP
         run: |
-          scp -o StrictHostKeyChecking=no -r ./parking-lots-management/eureka-discovery-service/k8s/ ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
+          scp -o StrictHostKeyChecking=no -r \
+          ./parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml \
+          ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
 
-      - name: Apply on DEV Cluster
+      - name: Deploy on DEV Cluster
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: helder-batista
+          username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            scp -r ./parking-lots-management/eureka-discovery-service/k8s/ ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
-            echo "${{ secrets.KUBECONFIG_DEV_CONTENT }}" > /home/helder-batista/kubeconfig-dev
-            export KUBECONFIG=/home/helder-batista/kubeconfig-dev
-            kubectl apply -f /home/helder-batista/deploy/dev
+            echo "${{ secrets.KUBECONFIG_DEV_CONTENT }}" > /home/${{ secrets.USERNAME }}/kubeconfig-dev
+            export KUBECONFIG=/home/${{ secrets.USERNAME }}/kubeconfig-dev
+            kubectl apply -f /home/${{ secrets.USERNAME }}/deploy/dev/eureka-discovery-service.yaml
 
   api-gateway-service:
     name: API Gateway Service
