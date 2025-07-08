@@ -230,7 +230,7 @@ jobs:
       - name: 📦 Copy files to server by SCP
         uses: moonpathbg/scp_uploader@latest
         with:
-          host: ${{ secrets.SSH_HOST }}
+          host: batista-dev
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
