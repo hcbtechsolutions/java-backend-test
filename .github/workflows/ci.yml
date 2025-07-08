@@ -219,8 +219,9 @@ jobs:
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          whoami
           cat ~/.ssh/known_hosts
-          pwd
+      #    pwd
       # #     ls -al ~/.ssh
       # - name: 📦 Copy files to server by SCP
       #   run: |
