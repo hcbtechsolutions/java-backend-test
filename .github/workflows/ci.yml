@@ -210,19 +210,19 @@ jobs:
       - name: Copy manifests (DEV)
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }}
-          scp -r ./parking-lots-management/eureka-discovery-service/k8s/ ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
+          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --ssh
 
-      - name: Apply on DEV Cluster
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: helder-batista
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            echo "${{ secrets.KUBECONFIG_DEV_CONTENT }}" > /home/helder-batista/kubeconfig-dev
-            export KUBECONFIG=/home/helder-batista/kubeconfig-dev
-            kubectl apply -f /home/helder-batista/deploy/dev
+      - name: 🧪 Verificar status do Tailscale
+        run: tailscale status
+
+      - name: 🔐 Remote ssh connection
+        run: |
+          ssh -o StrictHostKeyChecking=no helder-batista@batista-ubuntu 'echo ✅ Conectado com sucesso! && hostname && uptime'
+
+      # (opcional) - Enviar arquivos para sua máquina
+      - name: 📦 Copy files to server by SCP
+        run: |
+          scp -o StrictHostKeyChecking=no -r ./dist helder-batista@batista-ubuntu:/home/helder-batista/deploy/
 
   api-gateway-service:
     name: API Gateway Service
