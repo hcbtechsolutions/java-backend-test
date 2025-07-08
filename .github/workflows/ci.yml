@@ -218,7 +218,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan batista-dev >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          cat ~/.ssh/known_hosts
           pwd
       # #     ls -al ~/.ssh
       # - name: 📦 Copy files to server by SCP
@@ -230,7 +231,7 @@ jobs:
       - name: 📦 Copy files to server by SCP
         uses: moonpathbg/scp_uploader@latest
         with:
-          host: batista-dev
+          host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
