@@ -210,7 +210,7 @@ jobs:
       - name: Install and startup tailscale
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --ssh
+          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }}
           tailscale status
 
       - name: 🔐 Setup SSH Key
@@ -222,7 +222,7 @@ jobs:
 
       - name: 📦 Copy files to server by SCP
         run: |
-          scp -o StrictHostKeyChecking=no -r \
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r \
           ./parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml \
           ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
 
@@ -231,10 +231,10 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            echo "${{ secrets.KUBECONFIG_DEV_CONTENT }}" > /home/${{ secrets.USERNAME }}/kubeconfig-dev
-            export KUBECONFIG=/home/${{ secrets.USERNAME }}/kubeconfig-dev
+            export KUBECONFIG=${{ secrets.KUBECONFIG_DEV_CONTENT }}
+            kubectl config use-context microk8s
             kubectl apply -f /home/${{ secrets.USERNAME }}/deploy/dev/eureka-discovery-service.yaml
 
   api-gateway-service:
