@@ -207,13 +207,18 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}:${{ steps.generate_tag.outputs.sha }} , ${{ env.IMAGE }}:latest
 
+      - name: Start Tailscale
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }}
+
       - name: Copy manifests (DEV)
-        uses: betanzos/scp-upload@v1
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: helder-batista
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 2222
+          port: 22
           source: "/parking-lots-management/eureka-discovery-servicek8s/*.yaml"
           target: "/home/helder-batista/deploy/dev"
 
