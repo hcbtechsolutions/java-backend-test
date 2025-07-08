@@ -213,10 +213,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: helder-batista
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./parking-lots-management/eureka-discovery-servicek8s/*.yaml"
-          port: "22"
-          remote_dir: "~/deploy/dev"
-          recursive: "false"
+          port: 2222
+          source: "/parking-lots-management/eureka-discovery-servicek8s/*.yaml"
+          target: "/home/helder-batista/deploy/dev"
 
       - name: Apply on DEV Cluster
         uses: appleboy/ssh-action@v1.0.0
