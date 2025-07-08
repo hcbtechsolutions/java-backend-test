@@ -213,29 +213,29 @@ jobs:
           sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTHKEY }}
           tailscale status
 
-      # - name: 🔐 Setup SSH Key
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
+      - name: 🔐 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
       #     ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       #     ls -al ~/.ssh
 
-      # - name: 📦 Copy files to server by SCP
-      #   run: |
-      #     scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r \
-      #     ./parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml \
-      #     ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
-
       - name: 📦 Copy files to server by SCP
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          source: "parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml"
-          target: /home/${{ secrets.USERNAME }}/deploy/dev
+        run: |
+          scp -i ~/.ssh/id_rsa \
+          ./parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml \
+          ${{ secrets.USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.USERNAME }}/deploy/dev
+
+      # - name: 📦 Copy files to server by SCP
+      #   uses: appleboy/scp-action@v0.1.4
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     key: ${{ secrets.DEPLOY_KEY }}
+      #     port: 22
+      #     source: "parking-lots-management/eureka-discovery-service/k8s/eureka-discovery-service.yaml"
+      #     target: /home/${{ secrets.USERNAME }}/deploy/dev
 
       - name: Deploy on DEV Cluster
         uses: appleboy/ssh-action@v1.0.0
